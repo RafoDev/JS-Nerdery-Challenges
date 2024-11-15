@@ -17,11 +17,9 @@ const readableTime = (seconds) => {
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;
 
-  const units = [hours, minutes, remainingSeconds];
+  const timeUnits = [hours, minutes, remainingSeconds];
 
-  const formattedUnits = units.map((unit) => unit.toString().padStart(2, '0'));
-
-  return formattedUnits.join(':');
+  return timeUnits.map((unit) => unit.toString().padStart(2, '0')).join(':');
 };
 
 readableTime(458);
@@ -50,12 +48,14 @@ const COUNTRY_NAMES = ["Germany", "Norway", "Island", "Japan", "Israel"];
 
 const circularArray = (index) => {
 
+  const positiveIndex = Math.abs(index);
+
   const arrayLength = COUNTRY_NAMES.length;
 
   const tmpArray = Array.from({ arrayLength });
 
-  for (let iterationIndex = 0; iterationIndex < arrayLength; iterationIndex++, index++) {
-    tmpArray[iterationIndex] = COUNTRY_NAMES[index % arrayLength];
+  for (let iterationIndex = 0; iterationIndex < arrayLength; iterationIndex++) {
+    tmpArray[iterationIndex] = COUNTRY_NAMES[(positiveIndex + iterationIndex) % arrayLength];
   }
 
   return tmpArray;
@@ -89,26 +89,19 @@ The last 3 digits for the sum of powers from 1 to 10 is "317"
 const ownPower = (number, lastDigits) => {
   const modBase = Math.pow(10, lastDigits + 1);
 
-  const serie = Array.from({ length: number }, (_, idx) => idx + 1);
+  const sumOfPowers = Array.from({ length: number }, (_, idx) => {
+    let poweredNumber = 1;
 
-  const poweredSerie = serie.map((num) => {    
-    let poweredNumber = num;
-
-    for (let i = 1; i < num; i++) {
-      poweredNumber *= num;
-      poweredNumber %= modBase;
+    for (let i = 0; i < idx + 1; i++) {
+      poweredNumber = (poweredNumber * (idx + 1)) % modBase;
     }
-
     return poweredNumber;
-  });
-
-  const sumOfPowers = poweredSerie
-    .reduce((acc, currNum) => (acc + currNum) % modBase, 0)
+  })
+    .reduce((acc, currNumber) => (acc + currNumber) % modBase, 0)
     .toString();
 
-  const boundedSumOfPowers = sumOfPowers.slice(sumOfPowers.length - lastDigits);
+  return sumOfPowers.slice(- lastDigits);
 
-  return boundedSumOfPowers;
 };
 
 ownPower(10, 3);
@@ -139,11 +132,9 @@ const digitSum = (n) => {
     factorialOfN *= i;
   }
 
-  const digitsInfactorialOfN = [...factorialOfN.toString()].map(
-    (digit) => Number(digit)
-  );
+  const digitsInfactorialOfN = [...factorialOfN.toString()];
 
-  const sumOfDigits = digitsInfactorialOfN.reduce((acc, num) => acc + num, 0);
+  const sumOfDigits = digitsInfactorialOfN.reduce((acc, num) => acc + Number(num), 0);
 
   return sumOfDigits;
 };
@@ -170,15 +161,13 @@ Because the 12th index in the Fibonacci sequence is 144, and 144 has three digit
 const fibIndex = (n) => {
   let index = 2;
 
-  // f(n) = f(n-1) + f(n-2)  
-  let n1 = 0;
-  let n2 = 1;
-  let fn = 1;
+  let previousNumber = 0;
+  let currentNumber = 1;
 
-  while (fn.toString().length !== n) {
-    const tmp = n1 + n2;
-    n1 = n2;
-    n2 = fn = tmp;
+  while (currentNumber.toString().length !== n) {
+    const tmp = previousNumber + currentNumber;
+    previousNumber = currentNumber;
+    currentNumber = tmp;
     ++index;
   }
 
